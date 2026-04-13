@@ -86,7 +86,7 @@ def get_dataframe_by_val_in_key(df,key_name,value):
     '''
     return df[df[key_name] == value]
 
-def df_of_Operationsgang_and_Dato(df, target_gang, target_dato):
+def df_of_Operationsgang_and_Dato(df, target_gang = None, target_dato = None):
     '''
     Parameters
     ---
@@ -100,11 +100,11 @@ def df_of_Operationsgang_and_Dato(df, target_gang, target_dato):
     ops_id_num = pd.to_numeric(df["Operationsgang ID"], errors="coerce")
     dato_norm = pd.to_datetime(df["Dato"], errors="coerce").dt.normalize()
 
-    mask = (ops_id_num == target_gang) & (dato_norm == target_dato)
+    mask = ((ops_id_num == target_gang) if target_gang != None else 1) & ((dato_norm == target_dato) if target_dato != None else 1)
     df_gang_dato = df.loc[mask].copy()
     return df_gang_dato
 
-def df_of_Stue_and_Dato(df, target_stue, target_dato):
+def df_of_Stue_and_Dato(df, target_stue=None, target_dato=None):
     '''
     Parameters
     ---
@@ -117,10 +117,10 @@ def df_of_Stue_and_Dato(df, target_stue, target_dato):
     '''
     # Normalize types to avoid date/Timestamp mismatches
     stue_key = df["Stue"].astype(str).str.strip()
-    dato_key = pd.to_datetime(df["Dato"], errors="coerce").dt.normalize()
+    dato_key = pd.to_datetime(df["Dato"], errors="coerce").dt.normalize() 
 
-    target_stue_key = str(target_stue).strip()
-    target_dato_key = pd.to_datetime(target_dato, errors="coerce").normalize()
+    target_stue_key = str(target_stue).strip() if target_stue != None else None
+    target_dato_key = pd.to_datetime(target_dato, errors="coerce").normalize() if target_dato != None else None
 
-    mask = (stue_key == target_stue_key) & (dato_key == target_dato_key)
+    mask = ((stue_key == target_stue_key) if target_stue != None else 1) & ((dato_key == target_dato_key) if target_dato != None else 1)
     return df.loc[mask].copy()
