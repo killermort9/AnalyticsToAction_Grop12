@@ -48,3 +48,8 @@ desktop.ini
 # Optional local env files
 .env
 .env.*
+
+# Generated clean datasets (large, reproducible from Clean_dataset.ipynb)
+*.pkl
+Data\ and\ descriptions/clean_complete.csv
+Data\ and\ descriptions/clean_cancelled.csv
