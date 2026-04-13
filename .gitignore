@@ -48,3 +48,6 @@ desktop.ini
 # Optional local env files
 .env
 .env.*
+
+# Generated pickle files (large, reproducible from Clean_dataset.ipynb)
+*.pkl
