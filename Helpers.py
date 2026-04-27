@@ -57,6 +57,7 @@ def load_clean_data(base_path='../Data and descriptions'):
     from Helpers import load_clean_data
     df_complete, df_cancelled = load_clean_data()
     '''
+    
     df_complete  = pd.read_csv(f'{base_path}/Case Rigshospitalet - Completed operations.csv',  sep=';', low_memory=False)
     df_cancelled = pd.read_csv(f'{base_path}/Case Rigshospitalet - Cancelled operations.csv', sep=';', low_memory=False)
 
