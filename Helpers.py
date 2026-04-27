@@ -124,3 +124,77 @@ def df_of_Stue_and_Dato(df, target_stue=None, target_dato=None):
 
     mask = ((stue_key == target_stue_key) if target_stue != None else 1) & ((dato_key == target_dato_key) if target_dato != None else 1)
     return df.loc[mask].copy()
+
+
+
+def plot_forsinkelse_for_speciale(speciale):
+    if speciale == "Alle":
+        plot_df = tid_df
+    else:
+        plot_df = tid_df[tid_df["Speciale"] == speciale]
+
+    stats = (
+        plot_df.groupby("Start-time")["Individuel forsinkelse"]
+        .agg(
+            mean="mean",
+            q1=lambda s: s.quantile(0.25),
+            q3=lambda s: s.quantile(0.75)
+        )
+        .sort_index()
+    )
+
+    if stats.empty:
+        print(f"Ingen data for Speciale = {speciale}")
+        return
+
+    timer = stats.index.to_numpy()
+    mean_vals = stats["mean"].to_numpy()
+    q1_vals = stats["q1"].to_numpy()
+    q3_vals = stats["q3"].to_numpy()
+
+    plot_to_index = 16
+
+    plt.figure(figsize=(14, 5))
+    plt.fill_between(timer[:plot_to_index], q1_vals[:plot_to_index], q3_vals[:plot_to_index], alpha=0.25, label="1. og 3. kvartil")
+    plt.plot(timer[:plot_to_index], mean_vals[:plot_to_index], marker="o", linewidth=2, label="Gennemsnit")
+    plt.title(f"Individuel forsinkelse som funktion af tidspunkt på dagen - {speciale}")
+    plt.xlabel("Procedure start (time of day)")
+    plt.ylabel("Individuel forsinkelse (minutter)")
+    plt.xticks(timer[:plot_to_index], [f"{int(t):02d}:00" for t in timer[:plot_to_index]], rotation=45)
+    plt.grid(axis="y", alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def plot_planned_operations_throughout_the_day_for_speciale(speciale):
+    if speciale == "Alle":
+        df_in_question = df_complete_NotAkut
+    else:
+        df_in_question = df_complete_NotAkut[df_complete_NotAkut["Speciale"] == speciale].copy()
+
+    df_in_question = df_in_question.dropna(subset=["Procedure start"])
+    df_in_question["Start-time"] = df_in_question["Procedure start"].dt.hour
+
+    counts = (
+        df_in_question["Start-time"]
+        .value_counts()
+        .reindex(range(24), fill_value=0)
+        .sort_index()
+    )
+
+    counts_df = pd.DataFrame({
+        "Time": [f"{h:02d}:00" for h in counts.index],
+        "Count": counts.values,
+    })
+    counts_df["Share (%)"] = (counts_df["Count"] / counts_df["Count"].sum() * 100).round(2)
+
+    plt.figure(figsize=(14, 4))
+    plt.bar(counts_df["Time"], counts_df["Count"])
+    plt.title("Øjenkirurgi operations by time of day")
+    plt.xlabel("Procedure start (hour)")
+    plt.ylabel("Number of operations")
+    plt.xticks(rotation=45)
+    plt.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+    return None
